@@ -106,12 +106,22 @@ Run `python tools/validate_project.py`, `python tools/check_inline_js.py` (Node.
 
 For GitHub publication, verify ignored credentials with `git ls-files include/Secrets.h` (expected: no output), review staged files, then commit and push to a repository you control. Do not publish device-specific settings or credentials.
 
+
 ## License
 
-Room Monitor v7.3.2 is licensed under the
-Apache License, Version 2.0.
+Original Room Monitor project code is licensed under
+the Apache License, Version 2.0, to the extent that
+the copyright holder is authorized to license it.
 
-See [LICENSE](LICENSE) for the full license terms.
+See [LICENSE](LICENSE).
+
+Third-party components retain their original licenses.
+See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
+for dependency information and redistribution limitations.
+
+This repository provides source code and build instructions.
+Distribution of compiled firmware images requires additional
+verification of Bosch BSEC and LGPL license obligations.
 
 ## Contributing
 

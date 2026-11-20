@@ -106,6 +106,18 @@ Run `python tools/validate_project.py`, `python tools/check_inline_js.py` (Node.
 
 For GitHub publication, verify ignored credentials with `git ls-files include/Secrets.h` (expected: no output), review staged files, then commit and push to a repository you control. Do not publish device-specific settings or credentials.
 
-## Contributing / license
+## License
 
-Issues and pull requests may include code and steps to reproduce, but **must not** contain credentials, private configuration exports or identifying device logs. No license has been granted in this source ZIP; the owner must choose a license and confirm rights to all included code and dependencies before accepting external contributions or publishing it as open source.
+Room Monitor v7.3.2 is licensed under the
+Apache License, Version 2.0.
+
+See [LICENSE](LICENSE) for the full license terms.
+
+## Contributing
+
+Contributions and bug reports are welcome.
+
+Do not include passwords, API keys, certificates'
+private keys, device credentials, or confidential
+configuration details in issues or pull requests.
+

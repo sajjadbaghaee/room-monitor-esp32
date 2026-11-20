@@ -2,6 +2,25 @@
 
 ESP32 / PlatformIO firmware for local indoor-environment monitoring and MQTT telemetry. This repository is a **sanitized public source-code release**, not a ready-to-deploy device image. All broker, device and backend record IDs in the source are safe example values.
 
+
+> [!WARNING]
+> **Security Notice — Development and Trusted-LAN Use**
+>
+> Room Monitor v7.3.2 is intended for research, prototyping,
+> and deployment on trusted local networks.
+>
+> - The web management interface uses HTTP, not HTTPS.
+> - Wi-Fi provisioning is unauthenticated.
+> - Do not expose the device directly to the Internet.
+> - Use unique administrator and MQTT credentials.
+> - Enable MQTT TLS with certificate verification.
+> - Restrict device access to trusted networks.
+>
+> Review [SECURITY.md](SECURITY.md) and
+> [PRODUCTION_SECURITY.md](PRODUCTION_SECURITY.md)
+> before deploying this firmware.
+
+
 ## Features
 
 - Indoor monitoring with BME680/BSEC, BH1750, analog sound input and MAX7219 LED matrix.

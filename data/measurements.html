@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Measurements | Evolved.City Room Monitor</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/ui.css?v=7.3.2">
+  <link rel="stylesheet" href="/style.css?v=7.3.2">
+</head>
+
+<body class="app-page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Evolved.City Room Monitor home">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <span class="brand-copy">
+          <strong>Evolved.City</strong>
+          <small>Room Monitor</small>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <span class="status-pill" id="live-status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="live-status-text">Live history</span>
+        </span>
+        <button class="icon-button" id="sample-now" type="button" aria-label="Sample measurements now" title="Sample measurements now">↻</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Sensor history</p>
+        <h1>Measurements</h1>
+        <p class="page-subtitle">
+          Live plots of every environmental measurement collected while this page remains open.
+        </p>
+      </div>
+
+      <div class="refresh-card" aria-label="Measurement sampling information">
+        <span>Next sample</span>
+        <strong><span id="countdown">5</span> s</strong>
+      </div>
+    </section>
+
+    <nav class="page-tabs" aria-label="Room monitor pages">
+      <a class="tab" href="/">Dashboard</a>
+      <a class="tab active" href="/measurements.html" aria-current="page">Measurements</a>
+      <a class="tab" href="/wifi">Wi-Fi</a>
+      <a class="tab" href="/configuration">Configuration</a>
+      <a class="tab" href="/diagnostics">Diagnostics</a>
+      <a class="tab" href="/system">System</a>
+    </nav>
+
+    <aside class="history-note" role="note">
+      <span class="history-note-icon" aria-hidden="true">i</span>
+      <div>
+        <strong>Session plot history</strong>
+        <p>
+          History starts when this page opens. A new sample is requested every 5 seconds and kept in this browser tab only.
+          Refreshing or closing the page clears the plotted history; it does not change measurements stored or reported by the Room Monitor.
+        </p>
+      </div>
+    </aside>
+
+    <section class="history-grid" aria-label="Live measurement plots">
+      <article class="history-card" data-metric="temperature">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot temperature"></span>Temperature</span>
+            <div class="history-reading"><strong id="value-temperature">—</strong><span>°C</span></div>
+          </div>
+          <span class="history-samples"><span id="count-temperature">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-temperature" aria-label="Temperature history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-temperature">—</strong></span><span>Max <strong id="max-temperature">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="humidity">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot humidity"></span>Humidity</span>
+            <div class="history-reading"><strong id="value-humidity">—</strong><span>% RH</span></div>
+          </div>
+          <span class="history-samples"><span id="count-humidity">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-humidity" aria-label="Humidity history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-humidity">—</strong></span><span>Max <strong id="max-humidity">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="co2">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot co2"></span>CO₂ equivalent</span>
+            <div class="history-reading"><strong id="value-co2">—</strong><span>ppm</span></div>
+          </div>
+          <span class="history-samples"><span id="count-co2">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-co2" aria-label="CO2 equivalent history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-co2">—</strong></span><span>Max <strong id="max-co2">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="iaq">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot air"></span>Air quality</span>
+            <div class="history-reading"><strong id="value-iaq">—</strong><span>index</span></div>
+          </div>
+          <span class="history-samples"><span id="count-iaq">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-iaq" aria-label="Air quality history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-iaq">—</strong></span><span>Max <strong id="max-iaq">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="voc">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot voc"></span>VOC equivalent</span>
+            <div class="history-reading"><strong id="value-voc">—</strong><span>ppm</span></div>
+          </div>
+          <span class="history-samples"><span id="count-voc">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-voc" aria-label="VOC equivalent history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-voc">—</strong></span><span>Max <strong id="max-voc">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="pressure">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot pressure"></span>Pressure</span>
+            <div class="history-reading"><strong id="value-pressure">—</strong><span>hPa</span></div>
+          </div>
+          <span class="history-samples"><span id="count-pressure">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-pressure" aria-label="Pressure history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-pressure">—</strong></span><span>Max <strong id="max-pressure">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="sound">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot sound"></span>Sound level</span>
+            <div class="history-reading"><strong id="value-sound">—</strong><span>dBA</span></div>
+          </div>
+          <span class="history-samples"><span id="count-sound">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-sound" aria-label="Sound level history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-sound">—</strong></span><span>Max <strong id="max-sound">—</strong></span></div>
+      </article>
+
+      <article class="history-card" data-metric="light">
+        <div class="history-card-head">
+          <div>
+            <span class="history-label"><span class="mini-dot light"></span>Illuminance</span>
+            <div class="history-reading"><strong id="value-light">—</strong><span>lux</span></div>
+          </div>
+          <span class="history-samples"><span id="count-light">0</span> samples</span>
+        </div>
+        <canvas class="history-chart" id="chart-light" aria-label="Illuminance history plot"></canvas>
+        <div class="history-summary"><span>Min <strong id="min-light">—</strong></span><span>Max <strong id="max-light">—</strong></span></div>
+      </article>
+    </section>
+
+    <footer class="page-footer">
+      <span>Evolved.City Room Monitoring</span>
+      <span class="footer-separator">•</span>
+      <span>Live history is stored in this browser tab</span>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var SAMPLE_SECONDS = 5;
+      var remaining = SAMPLE_SECONDS;
+      var requestInFlight = false;
+      var metrics = {
+        temperature: { decimals: 2, css: "--temperature" },
+        humidity:    { decimals: 2, css: "--humidity" },
+        co2:         { decimals: 2, css: "--co2" },
+        iaq:         { decimals: 2, css: "--air" },
+        voc:         { decimals: 2, css: "--voc" },
+        pressure:    { decimals: 2, css: "--pressure" },
+        sound:       { decimals: 0, css: "--sound" },
+        light:       { decimals: 0, css: "--light" }
+      };
+
+      Object.keys(metrics).forEach(function (key) {
+        metrics[key].points = [];
+        metrics[key].min = null;
+        metrics[key].max = null;
+      });
+
+      function finiteNumber(value) {
+        return typeof value === "number" && isFinite(value);
+      }
+
+      function formatValue(value, decimals) {
+        return finiteNumber(value) ? value.toFixed(decimals) : "—";
+      }
+
+      function cssColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#1769e0";
+      }
+
+      function timeLabel(timestamp) {
+        var date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      }
+
+      function setConnectionState(ok) {
+        var status = document.getElementById("live-status");
+        if (!status) return;
+        status.classList.toggle("offline", !ok);
+        var text = document.getElementById("live-status-text");
+        if (text) text.textContent = ok ? "Live history" : "Sensor endpoint unavailable";
+      }
+
+      function updateSummary(key) {
+        var config = metrics[key];
+        var latest = config.points.length ? config.points[config.points.length - 1].value : null;
+
+        document.getElementById("value-" + key).textContent = formatValue(latest, config.decimals);
+        document.getElementById("min-" + key).textContent = formatValue(config.min, config.decimals);
+        document.getElementById("max-" + key).textContent = formatValue(config.max, config.decimals);
+        document.getElementById("count-" + key).textContent = String(config.points.length);
+      }
+
+      function resizeCanvas(canvas) {
+        var rect = canvas.getBoundingClientRect();
+        var ratio = Math.min(window.devicePixelRatio || 1, 2);
+        var width = Math.max(280, Math.round(rect.width * ratio));
+        var height = Math.max(190, Math.round(rect.height * ratio));
+
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+
+        return { width: width, height: height, ratio: ratio };
+      }
+
+      function drawChart(key) {
+        var config = metrics[key];
+        var canvas = document.getElementById("chart-" + key);
+        if (!canvas) return;
+
+        var size = resizeCanvas(canvas);
+        var ctx = canvas.getContext("2d");
+        var ratio = size.ratio;
+        var width = size.width;
+        var height = size.height;
+        var left = 54 * ratio;
+        var right = 16 * ratio;
+        var top = 16 * ratio;
+        var bottom = 30 * ratio;
+        var plotWidth = Math.max(1, width - left - right);
+        var plotHeight = Math.max(1, height - top - bottom);
+        var points = config.points;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.font = (10 * ratio) + "px system-ui, -apple-system, Segoe UI, sans-serif";
+        ctx.textBaseline = "middle";
+
+        if (!points.length) {
+          ctx.fillStyle = "#8a94a8";
+          ctx.textAlign = "center";
+          ctx.fillText("Waiting for first sample…", width / 2, height / 2);
+          return;
+        }
+
+        var minValue = config.min;
+        var maxValue = config.max;
+        var range = maxValue - minValue;
+        var padding = range > 0 ? range * 0.12 : Math.max(Math.abs(maxValue) * 0.03, 1);
+        var yMin = minValue - padding;
+        var yMax = maxValue + padding;
+
+        ctx.strokeStyle = "#e8edf4";
+        ctx.lineWidth = ratio;
+        ctx.fillStyle = "#8792a6";
+
+        for (var grid = 0; grid <= 4; grid += 1) {
+          var gy = top + (plotHeight * grid / 4);
+          ctx.beginPath();
+          ctx.moveTo(left, gy);
+          ctx.lineTo(width - right, gy);
+          ctx.stroke();
+
+          var gridValue = yMax - ((yMax - yMin) * grid / 4);
+          ctx.textAlign = "right";
+          ctx.fillText(formatValue(gridValue, config.decimals), left - 8 * ratio, gy);
+        }
+
+        var firstTime = points[0].time;
+        var lastTime = points[points.length - 1].time;
+        var timeSpan = Math.max(1, lastTime - firstTime);
+
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "#8792a6";
+        ctx.textAlign = "left";
+        ctx.fillText(timeLabel(firstTime), left, height - 8 * ratio);
+        ctx.textAlign = "right";
+        ctx.fillText(timeLabel(lastTime), width - right, height - 8 * ratio);
+
+        ctx.strokeStyle = cssColor(config.css);
+        ctx.lineWidth = 2 * ratio;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+
+        points.forEach(function (point, index) {
+          var x = left + ((point.time - firstTime) / timeSpan) * plotWidth;
+          if (points.length === 1) x = left + plotWidth / 2;
+          var y = top + ((yMax - point.value) / (yMax - yMin)) * plotHeight;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        var latest = points[points.length - 1];
+        var latestX = points.length === 1
+          ? left + plotWidth / 2
+          : left + ((latest.time - firstTime) / timeSpan) * plotWidth;
+        var latestY = top + ((yMax - latest.value) / (yMax - yMin)) * plotHeight;
+        ctx.fillStyle = cssColor(config.css);
+        ctx.beginPath();
+        ctx.arc(latestX, latestY, 3.5 * ratio, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawAllCharts() {
+        Object.keys(metrics).forEach(drawChart);
+      }
+
+      function acceptSample(payload) {
+        var receivedAt = Date.now();
+
+        Object.keys(metrics).forEach(function (key) {
+          var value = payload[key];
+          if (finiteNumber(value)) {
+            var config = metrics[key];
+            config.points.push({ time: receivedAt, value: value });
+            if (config.min === null || value < config.min) config.min = value;
+            if (config.max === null || value > config.max) config.max = value;
+          }
+          updateSummary(key);
+          drawChart(key);
+        });
+      }
+
+      function sampleNow() {
+        if (requestInFlight) return;
+        requestInFlight = true;
+
+        fetch("/api/measurements?t=" + Date.now(), { cache: "no-store" })
+          .then(function (response) {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            return response.json();
+          })
+          .then(function (payload) {
+            acceptSample(payload);
+            setConnectionState(true);
+            remaining = SAMPLE_SECONDS;
+          })
+          .catch(function () {
+            setConnectionState(false);
+          })
+          .then(function () {
+            requestInFlight = false;
+          });
+      }
+
+      document.getElementById("sample-now").addEventListener("click", function () {
+        sampleNow();
+      });
+
+      window.addEventListener("resize", function () {
+        window.clearTimeout(window.__roomMonitorResizeTimer);
+        window.__roomMonitorResizeTimer = window.setTimeout(drawAllCharts, 120);
+      });
+
+      setInterval(function () {
+        remaining -= 1;
+        if (remaining <= 0) {
+          remaining = SAMPLE_SECONDS;
+          sampleNow();
+        }
+        document.getElementById("countdown").textContent = String(remaining);
+      }, 1000);
+
+      drawAllCharts();
+      sampleNow();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#0b1220" name="theme-color"/>
+<title>Room Monitor | Evolved.City</title>
+<link href="data:," rel="icon"/>
+<link href="/ui.css?v=7.3.2" rel="stylesheet"/>
+<link href="/style.css?v=7.3.2" rel="stylesheet"/>
+</head>
+<body class="app-page">
+<header class="topbar">
+<div class="topbar-inner">
+<a aria-label="Evolved.City Room Monitor home" class="brand" href="/">
+<span aria-hidden="true" class="brand-mark">E</span>
+<span class="brand-copy">
+<strong>Evolved.City</strong>
+<small>Room Monitor</small>
+</span>
+</a>
+<div class="topbar-actions">
+<span class="status-pill">
+<span aria-hidden="true" class="status-dot"></span>
+          Live monitor
+        </span>
+<a class="topbar-button" hidden="" href="/login?next=/" id="admin-login-button">Admin sign in</a>
+<button class="topbar-button" hidden="" id="logout-button" type="button">Logout</button>
+<button aria-label="Refresh measurements" class="icon-button" onclick="window.location.reload()" title="Refresh measurements" type="button">
+          ↻
+        </button>
+</div>
+</div>
+</header>
+<main class="page-shell">
+<section class="page-heading">
+<div>
+<p class="eyebrow">Indoor environment</p>
+<h1>Room conditions at a glance</h1>
+<p class="page-subtitle">
+          Latest measurements reported by the local room-monitoring sensor node.
+        </p>
+</div>
+<div aria-label="Automatic refresh information" class="refresh-card">
+<span>Auto refresh</span>
+<strong><span id="countdown">15</span> s</strong>
+</div>
+</section>
+<nav aria-label="Room monitor pages" class="page-tabs">
+<a aria-current="page" class="tab active" href="/">Dashboard</a>
+<a class="tab" href="/measurements.html">Measurements</a>
+<a class="tab" href="/wifi">Wi-Fi</a>
+<a class="tab" href="/configuration">Configuration</a><a class="tab" href="/diagnostics">Diagnostics</a><a class="tab" href="/system">System</a>
+</nav>
+<section aria-label="Environmental measurements" class="metric-grid">
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon temperature">°C</div>
+<div class="metric-content">
+<span class="metric-label">Temperature</span>
+<div class="metric-reading">
+<strong id="value-temperature">%Temp_web%</strong><span>°C</span>
+</div>
+<small>Ambient temperature</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon humidity">&#37;</div>
+<div class="metric-content">
+<span class="metric-label">Humidity</span>
+<div class="metric-reading">
+<strong id="value-humidity">%Hum_web%</strong><span>&#37; RH</span>
+</div>
+<small>Relative humidity</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon co2">CO₂</div>
+<div class="metric-content">
+<span class="metric-label">CO₂ equivalent</span>
+<div class="metric-reading">
+<strong id="value-co2">%CO2_web%</strong><span>ppm</span>
+</div>
+<small>BSEC CO₂ equivalent</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon air">IAQ</div>
+<div class="metric-content">
+<span class="metric-label">Air quality</span>
+<div class="metric-reading">
+<strong id="value-iaq">%AirQuality_web%</strong><span>index</span>
+</div>
+<small>BSEC indoor air-quality index</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon voc">VOC</div>
+<div class="metric-content">
+<span class="metric-label">VOC equivalent</span>
+<div class="metric-reading">
+<strong id="value-voc">%VOC_web%</strong><span>ppm</span>
+</div>
+<small>Breath VOC equivalent</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon pressure">hPa</div>
+<div class="metric-content">
+<span class="metric-label">Pressure</span>
+<div class="metric-reading">
+<strong id="value-pressure">%Pressure_web%</strong><span>hPa</span>
+</div>
+<small>Barometric pressure</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon sound">dB</div>
+<div class="metric-content">
+<span class="metric-label">Sound level</span>
+<div class="metric-reading">
+<strong id="value-sound">%Sound_web%</strong><span>dBA</span>
+</div>
+<small>Room sound level</small>
+</div>
+</article>
+<article class="metric-card">
+<div aria-hidden="true" class="metric-icon light">lx</div>
+<div class="metric-content">
+<span class="metric-label">Illuminance</span>
+<div class="metric-reading">
+<strong id="value-light">%Light_web%</strong><span>lux</span>
+</div>
+<small>Ambient light level</small>
+</div>
+</article>
+</section>
+<section aria-label="Administrator security" class="dashboard-admin-section" id="administrator">
+<article class="admin-card" hidden="" id="admin-guest-card">
+<div class="admin-card-body admin-security-row">
+<div>
+<h2>Administrator security</h2>
+<p>Sign in to change the administrator password. Device settings are managed from the Configuration page.</p>
+</div>
+<a class="button-link-primary" href="/login?next=/">Administrator sign in</a>
+</div>
+</article>
+<article class="admin-card" hidden="" id="admin-auth-card">
+<div class="admin-card-body">
+<div class="admin-security-head">
+<div>
+<h2>Administrator security</h2>
+<p>Signed in as <strong id="admin-username">admin</strong>. Change the password used for Wi-Fi and System administration.</p>
+</div>
+<span class="security-badge">Authenticated</span>
+</div>
+<form autocomplete="off" id="password-form">
+<div class="password-field-grid">
+<div class="field">
+<label for="current-password">Current password</label>
+<input autocomplete="current-password" class="control" id="current-password" maxlength="64" required="" type="password"/>
+</div>
+<div class="field">
+<label for="new-password">New password</label>
+<input autocomplete="new-password" class="control" id="new-password" maxlength="64" minlength="10" required="" type="password"/>
+<span class="field-help">Use 10–64 characters.</span>
+</div>
+<div class="field">
+<label for="confirm-password">Confirm new password</label>
+<input autocomplete="new-password" class="control" id="confirm-password" maxlength="64" minlength="10" required="" type="password"/>
+</div>
+</div>
+<div class="password-actions">
+<button class="button-secondary" id="toggle-passwords" type="button">Show passwords</button>
+<button class="button-primary" id="change-password-button" type="submit">Change password</button>
+</div>
+<div aria-live="polite" class="notice" id="password-notice" role="status"></div>
+</form>
+</div>
+</article>
+
+</section>
+<footer class="page-footer">
+<span>Evolved.City Room Monitoring</span>
+<span class="footer-separator">•</span>
+<span>Local device dashboard</span>
+</footer>
+</main>
+<script>
+(function () {
+  "use strict";
+  var remaining = 15;
+  var label = document.getElementById("countdown");
+  var passwordForm = document.getElementById("password-form");
+  function el(id) { return document.getElementById(id); }
+  function setPasswordNotice(type, message) { var n=el("password-notice"); if(!n)return; n.className="notice show "+type; n.textContent=message; }
+  function clearPasswordNotice() { var n=el("password-notice"); if(!n)return; n.className="notice"; n.textContent=""; }
+  function setAdminState(session) {
+    var authenticated=!!(session&&session.authenticated);
+    el("admin-login-button").hidden=authenticated;
+    el("logout-button").hidden=!authenticated;
+    el("admin-guest-card").hidden=authenticated;
+    el("admin-auth-card").hidden=!authenticated;
+    if(authenticated&&session.username) el("admin-username").textContent=session.username;
+  }
+  function loadAdminSession(){fetch("/api/admin/session?ts="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(setAdminState).catch(function(){setAdminState({authenticated:false});});}
+  function updateMeasurementValue(id,value,decimals){var t=el(id);if(!t)return;t.textContent=(value==null||!Number.isFinite(Number(value)))?"—":Number(value).toFixed(decimals);}
+  function refreshMeasurements(){fetch("/api/measurements?ts="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(d){updateMeasurementValue("value-temperature",d.temperature,2);updateMeasurementValue("value-humidity",d.humidity,2);updateMeasurementValue("value-co2",d.co2,2);updateMeasurementValue("value-iaq",d.iaq,2);updateMeasurementValue("value-voc",d.voc,2);updateMeasurementValue("value-pressure",d.pressure,2);updateMeasurementValue("value-sound",d.sound,0);updateMeasurementValue("value-light",d.light,0);}).catch(function(){});}
+  setInterval(function(){remaining-=1;if(remaining<=0){refreshMeasurements();remaining=15;}if(label)label.textContent=remaining;},1000);
+  el("logout-button").addEventListener("click",function(){var b=this;b.disabled=true;fetch("/api/admin/logout",{method:"POST",headers:{"X-RoomMonitor-Request":"1"},cache:"no-store"}).then(function(){setAdminState({authenticated:false});if(passwordForm)passwordForm.reset();clearPasswordNotice();}).catch(function(){setAdminState({authenticated:false});}).finally(function(){b.disabled=false;});});
+  el("toggle-passwords").addEventListener("click",function(){var inputs=[el("current-password"),el("new-password"),el("confirm-password")],show=inputs[0].type==="password";inputs.forEach(function(i){i.type=show?"text":"password";});this.textContent=show?"Hide passwords":"Show passwords";});
+  passwordForm.addEventListener("submit",function(event){event.preventDefault();clearPasswordNotice();var currentPassword=el("current-password").value,newPassword=el("new-password").value,confirmPassword=el("confirm-password").value,button=el("change-password-button");if(newPassword!==confirmPassword){setPasswordNotice("error","The new password and confirmation do not match.");return;}button.disabled=true;button.textContent="Changing…";var body="currentPassword="+encodeURIComponent(currentPassword)+"&newPassword="+encodeURIComponent(newPassword)+"&confirmPassword="+encodeURIComponent(confirmPassword);fetch("/api/admin/password",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8","X-RoomMonitor-Request":"1"},body:body,cache:"no-store"}).then(function(r){return r.json().then(function(data){return{ok:r.ok,status:r.status,data:data};});}).then(function(result){if(!result.ok||!result.data.ok){if(result.status===401)throw new Error("Your administrator session has expired. Sign in again.");throw new Error(result.data.message||"Could not change the administrator password.");}passwordForm.reset();setPasswordNotice("success",result.data.message||"Password changed successfully.");setAdminState({authenticated:false});setTimeout(function(){window.location.href="/login?next=/";},1200);}).catch(function(error){setPasswordNotice("error",error.message||"Could not change the administrator password.");button.disabled=false;button.textContent="Change password";});});
+  loadAdminSession();
+})();
+</script>
+</body>
+</html>

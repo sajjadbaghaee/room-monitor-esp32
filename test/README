@@ -1,0 +1,23 @@
+Room Monitor v7.3 regression strategy
+=====================================
+
+The firmware depends on ESP32/Arduino/BSEC hardware libraries, so the default
+CI gate combines host-side source regression checks with real PlatformIO
+firmware and SPIFFS compilation.
+
+Run locally from the project root:
+
+    python tools/validate_project.py
+    python tools/check_inline_js.py
+    platformio run
+    platformio run -t buildfs
+
+The static checks cover NVS key limits, v7.3 UI/version consistency, duplicate
+HTML IDs, diagnostics/navigation presence, secret-free configuration export,
+legacy MQTT command compatibility, CSRF markers, verified OTA markers, and
+watchdog/diagnostics wiring. GitHub Actions performs the same checks and then
+compiles both ESP32 artifacts.
+
+Hardware-in-loop acceptance still needs a real Room Monitor for sensor input,
+Wi-Fi recovery, MQTT/TLS broker connectivity, OTA reboot confirmation, and
+factory-reset behavior.

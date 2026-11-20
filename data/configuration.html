@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Configuration | Evolved.City Room Monitor</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/ui.css?v=7.3.2">
+  <link rel="stylesheet" href="/style.css?v=7.3.2">
+</head>
+<body class="app-page">
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="/" aria-label="Evolved.City Room Monitor home"><span class="brand-mark" aria-hidden="true">E</span><span class="brand-copy"><strong>Evolved.City</strong><small>Room Monitor</small></span></a><div class="topbar-actions"><span class="status-pill"><span class="status-dot locked" aria-hidden="true"></span>Protected configuration</span><button class="topbar-button" id="logout-button" type="button">Logout</button></div></div></header>
+<main class="page-shell">
+<section class="page-heading"><div><p class="eyebrow">Device management</p><h1>Configuration</h1><p class="page-subtitle">Manage node identity, MQTT transport, transmission timing, sensor calibration, deadbands, and backend identifiers.</p></div><div class="refresh-card"><span>Storage</span><strong>NVS</strong></div></section>
+<nav class="page-tabs" aria-label="Room monitor pages"><a class="tab" href="/">Dashboard</a><a class="tab" href="/measurements.html">Measurements</a><a class="tab" href="/wifi">Wi-Fi</a><a class="tab active" href="/configuration" aria-current="page">Configuration</a><a class="tab" href="/diagnostics">Diagnostics</a><a class="tab" href="/system">System</a></nav>
+<section class="dashboard-admin-section" aria-label="Device configuration">
+<article class="admin-card device-config-card" id="device-config-card">
+<div class="admin-card-body">
+<div class="admin-security-head">
+<div>
+<h2>Device configuration</h2>
+<p>Manage deployment identity, MQTT transport, transmission timing, sensor calibration, deadbands, and backend identifiers. Wi-Fi configuration remains on the dedicated Wi-Fi page.</p>
+</div>
+<span class="security-badge">NVS configuration</span>
+</div>
+<div class="inline-note config-info-banner">
+<span aria-hidden="true" class="inline-note-icon">i</span>
+<div>
+<strong>Persistent configuration</strong>
+<p>These values are stored in ESP32 NVS and survive firmware and web-interface OTA updates. Saving restarts the device so Node ID and MQTT changes are applied consistently.</p>
+</div>
+</div>
+<form autocomplete="off" id="device-config-form">
+<details class="config-group" open="">
+<summary>Device identity &amp; transmission</summary>
+<div class="config-group-body config-grid three-column">
+<div class="field">
+<label for="cfg-node-id">Node ID</label>
+<input class="control" id="cfg-node-id" maxlength="64" name="nodeId" required="" type="text"/>
+<span class="field-help">Included in every telemetry record.</span>
+</div>
+<div class="field">
+<label for="cfg-send-interval">Full transmission interval</label>
+<div class="input-with-unit"><input class="control" id="cfg-send-interval" max="86400" min="1" name="sendIntervalSec" required="" step="1" type="number"/><span>s</span></div>
+<span class="field-help">Periodic full sensor payload.</span>
+</div>
+<div class="field">
+<label for="cfg-alive-interval">Alive interval</label>
+<div class="input-with-unit"><input class="control" id="cfg-alive-interval" max="86400" min="1" name="aliveIntervalSec" required="" step="1" type="number"/><span>s</span></div>
+<span class="field-help">Periodic “I am Alive” reporting.</span>
+</div>
+</div>
+</details>
+<details class="config-group" open="">
+<summary>MQTT broker &amp; topics</summary>
+<div class="config-group-body config-grid two-column">
+<div class="field">
+<label for="cfg-mqtt-host">Broker host / IP address</label>
+<input class="control" id="cfg-mqtt-host" maxlength="128" name="mqttHost" required="" type="text"/>
+<span class="field-help" id="cfg-mqtt-host-tls-note">For TLS, use the broker DNS hostname that appears in the server certificate whenever possible.</span>
+</div>
+<div class="field">
+<label for="cfg-mqtt-port">Broker port</label>
+<input class="control" id="cfg-mqtt-port" max="65535" min="1" name="mqttPort" required="" step="1" type="number"/>
+</div>
+<div class="field checkbox-field">
+<label class="checkbox-label"><input id="cfg-mqtt-tls" name="mqttTlsEnabled" type="checkbox" value="1"/> Secure MQTT (TLS + CA verification)</label>
+<span class="field-help">When enabled, the ESP32 uses <strong>mqtts://</strong> and verifies the broker certificate. Port 8883 is conventional but not required.</span>
+</div>
+<div class="field" style="grid-column:1/-1">
+<label for="cfg-mqtt-ca">Broker CA certificate (PEM)</label>
+<textarea class="control code-control" id="cfg-mqtt-ca" maxlength="3500" name="mqttCaCert" placeholder="-----BEGIN CERTIFICATE-----&#10;... root CA certificate ...&#10;-----END CERTIFICATE-----" rows="9" style="min-height:180px;resize:vertical"></textarea>
+<span class="field-help" id="cfg-mqtt-ca-state">No CA certificate stored. Paste the root CA used to verify the broker.</span>
+<div class="field" style="margin-top:10px">
+<label for="cfg-mqtt-ca-file">Load CA certificate from file</label>
+<input class="control" id="cfg-mqtt-ca-file" accept=".pem,.crt,.cer,.txt,application/x-pem-file,text/plain" type="file"/>
+<span class="field-help">Browse a PEM text certificate file. The browser reads the file locally and copies it into the certificate field; the file is saved to the ESP32 only after you press <strong>Save configuration &amp; restart</strong>. Binary DER certificates are not accepted.</span>
+</div>
+<label class="checkbox-label" style="margin-top:8px"><input id="cfg-clear-mqtt-ca" name="clearMqttCaCert" type="checkbox" value="1"/> Clear stored MQTT CA certificate</label>
+<div class="inline-note" id="certificate-summary" style="margin-top:14px">
+<span aria-hidden="true" class="inline-note-icon">✓</span>
+<div style="min-width:0">
+<strong id="certificate-status">Certificate status loading…</strong>
+<p><span id="certificate-subject">—</span></p>
+<p>Valid to: <strong id="certificate-valid-to">—</strong></p>
+<p class="code-control" style="overflow-wrap:anywhere">SHA-256: <span id="certificate-fingerprint">—</span></p>
+</div>
+</div>
+</div>
+<div class="field">
+<label for="cfg-mqtt-publish">Publish topic</label>
+<input class="control code-control" id="cfg-mqtt-publish" maxlength="128" name="mqttPublishTopic" required="" type="text"/>
+</div>
+<div class="field">
+<label for="cfg-mqtt-subscribe">Subscribed command topic</label>
+<input class="control code-control" id="cfg-mqtt-subscribe" maxlength="128" name="mqttSubscribeTopic" required="" type="text"/>
+<span class="field-help">Defaults to &lt;Node ID&gt;/Command.</span>
+</div>
+<div class="field">
+<label for="cfg-mqtt-qos">Publish / subscribe QoS</label>
+<select class="control" id="cfg-mqtt-qos" name="mqttQos" required="">
+<option value="0">0 — At most once</option>
+<option value="1">1 — At least once</option>
+<option value="2">2 — Exactly once</option>
+</select>
+</div>
+<div class="field">
+<label for="cfg-mqtt-user">MQTT username</label>
+<input autocomplete="off" class="control" id="cfg-mqtt-user" maxlength="64" name="mqttUsername" type="text"/>
+<span class="field-help">Leave empty for anonymous MQTT.</span>
+</div>
+<div class="field">
+<label for="cfg-mqtt-password">MQTT password</label>
+<input autocomplete="new-password" class="control" id="cfg-mqtt-password" maxlength="128" name="mqttPassword" placeholder="Leave blank to keep current password" type="password"/>
+<span class="field-help" id="cfg-mqtt-password-state">No MQTT password stored.</span>
+</div>
+<div class="field">
+<label for="cfg-mqtt-client">MQTT client ID</label>
+<input class="control code-control" id="cfg-mqtt-client" maxlength="64" name="mqttClientId" placeholder="Blank = generated ESP32 client ID" type="text"/>
+<span class="field-help">Leave blank to use the deterministic ESP32-generated client ID.</span>
+</div>
+<div class="field">
+<label for="cfg-mqtt-keepalive">Keep-alive interval</label>
+<div class="input-with-unit"><input class="control" id="cfg-mqtt-keepalive" max="3600" min="5" name="mqttKeepAliveSec" required="" step="1" type="number"/><span>s</span></div>
+<span class="field-help">60 s is recommended for TLS deployments. Existing saved values are preserved during upgrade.</span>
+</div>
+<div class="field checkbox-field">
+<label class="checkbox-label"><input id="cfg-mqtt-clean" name="mqttCleanSession" type="checkbox" value="1"/> Clean MQTT session</label>
+<span class="field-help">Enabled by default and matches the historical client behavior.</span>
+</div>
+<div class="field checkbox-field">
+<label class="checkbox-label"><input id="cfg-mqtt-retain" name="mqttPublishRetain" type="checkbox" value="1"/> Retain published telemetry</label>
+<span class="field-help">Disabled by default. Enable only when the broker/backend expects retained values.</span>
+</div>
+<div class="field checkbox-field">
+<label class="checkbox-label"><input id="cfg-clear-mqtt" name="clearMqttCredentials" type="checkbox" value="1"/> Clear MQTT username/password</label>
+<span class="field-help">Use this to return to anonymous broker access.</span>
+</div>
+<div class="field" style="grid-column:1/-1">
+<label>Commissioning test</label>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<button class="button-secondary" id="mqtt-test-button" type="button">Test MQTT / TLS connection</button>
+<span class="field-help">Saved settings reuse the existing live MQTT connection. Unsaved settings run DNS/TCP/time/CA prechecks and an independent MQTT/TLS session only when heap margin is safe.</span>
+</div>
+<div aria-live="polite" class="notice" id="mqtt-test-notice" role="status"></div>
+<div class="config-grid four-column" id="mqtt-test-steps" hidden style="margin-top:12px">
+<div class="field"><label>Test mode</label><strong id="test-mode">—</strong></div>
+<div class="field"><label>Live MQTT</label><strong id="test-live">—</strong></div>
+<div class="field"><label>DNS</label><strong id="test-dns">—</strong></div>
+<div class="field"><label>TCP</label><strong id="test-tcp">—</strong></div>
+<div class="field"><label>Time</label><strong id="test-time">—</strong></div>
+<div class="field"><label>CA</label><strong id="test-ca">—</strong></div>
+<div class="field"><label>TLS</label><strong id="test-tls">—</strong></div>
+<div class="field"><label>MQTT login</label><strong id="test-login">—</strong></div>
+<div class="field"><label>Subscribe</label><strong id="test-subscribe">—</strong></div>
+<div class="field"><label>Resolved IP</label><strong id="test-ip">—</strong></div>
+<div class="field" style="grid-column:1/-1"><label>Test details</label><span class="field-help" id="test-details">—</span></div>
+</div>
+</div>
+</div>
+</details>
+<details class="config-group">
+<summary>Sensor calibration offsets</summary>
+<div class="config-group-body config-grid four-column">
+<div class="field"><label for="cfg-off-temp">Temperature</label><div class="input-with-unit"><input class="control" id="cfg-off-temp" max="50" min="-50" name="temperatureOffset" required="" step="0.01" type="number"/><span>°C</span></div></div>
+<div class="field"><label for="cfg-off-hum">Humidity</label><div class="input-with-unit"><input class="control" id="cfg-off-hum" max="100" min="-100" name="humidityOffset" required="" step="0.01" type="number"/><span>%RH</span></div></div>
+<div class="field"><label for="cfg-off-co2">CO₂ equivalent</label><div class="input-with-unit"><input class="control" id="cfg-off-co2" max="5000" min="-5000" name="co2Offset" required="" step="0.01" type="number"/><span>ppm</span></div></div>
+<div class="field"><label for="cfg-off-iaq">IAQ</label><input class="control" id="cfg-off-iaq" max="500" min="-500" name="iaqOffset" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-off-voc">VOC equivalent</label><div class="input-with-unit"><input class="control" id="cfg-off-voc" max="50" min="-50" name="vocOffset" required="" step="0.01" type="number"/><span>ppm</span></div></div>
+<div class="field"><label for="cfg-off-pressure">Pressure offset</label><input class="control" id="cfg-off-pressure" max="1000" min="-1000" name="pressureOffset" required="" step="0.1" type="number"/><span class="field-help">Legacy Ofap scale: 1 unit = 0.1 hPa.</span></div>
+<div class="field"><label for="cfg-off-sound">Sound</label><div class="input-with-unit"><input class="control" id="cfg-off-sound" max="200" min="-200" name="soundOffset" required="" step="1" type="number"/><span>dBA</span></div></div>
+<div class="field"><label for="cfg-off-light">Illuminance</label><div class="input-with-unit"><input class="control" id="cfg-off-light" max="100000" min="-100000" name="lightOffset" required="" step="1" type="number"/><span>lux</span></div></div>
+</div>
+</details>
+<details class="config-group">
+<summary>Change-trigger thresholds (deadbands)</summary>
+<div class="config-group-body">
+<p class="section-help">A sensor value is published early when its change from the last transmitted value reaches the configured threshold. Set a threshold to 0 to publish every observed change.</p>
+<div class="config-grid four-column">
+<div class="field"><label for="cfg-db-temp">Temperature</label><input class="control" id="cfg-db-temp" min="0" name="dbTemperature" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-hum">Humidity</label><input class="control" id="cfg-db-hum" min="0" name="dbHumidity" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-co2">CO₂ equivalent</label><input class="control" id="cfg-db-co2" min="0" name="dbCo2" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-iaq">IAQ</label><input class="control" id="cfg-db-iaq" min="0" name="dbIaq" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-voc">VOC equivalent</label><input class="control" id="cfg-db-voc" min="0" name="dbVoc" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-pressure">Pressure</label><input class="control" id="cfg-db-pressure" min="0" name="dbPressure" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-sound">Sound</label><input class="control" id="cfg-db-sound" min="0" name="dbSound" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="cfg-db-light">Illuminance</label><input class="control" id="cfg-db-light" min="0" name="dbLight" required="" step="0.01" type="number"/></div>
+</div>
+</div>
+</details>
+<details class="config-group">
+<summary>Backend measurement IDs (advanced)</summary>
+<div class="config-group-body">
+<p class="section-help">These identifiers are included in backend telemetry. Change them only when provisioning the node against a different backend/device mapping.</p>
+<div class="config-grid two-column backend-id-grid">
+<div class="field"><label for="cfg-id-temp">Temperature ID</label><input class="control code-control" id="cfg-id-temp" maxlength="64" name="idTemperature" required=""/></div>
+<div class="field"><label for="cfg-id-hum">Humidity ID</label><input class="control code-control" id="cfg-id-hum" maxlength="64" name="idHumidity" required=""/></div>
+<div class="field"><label for="cfg-id-co2">CO₂ ID</label><input class="control code-control" id="cfg-id-co2" maxlength="64" name="idCo2" required=""/></div>
+<div class="field"><label for="cfg-id-aq">AirQuality / VOC ID</label><input class="control code-control" id="cfg-id-aq" maxlength="64" name="idAirQuality" required=""/></div>
+<div class="field"><label for="cfg-id-gas">Gas / IAQ ID</label><input class="control code-control" id="cfg-id-gas" maxlength="64" name="idGas" required=""/></div>
+<div class="field"><label for="cfg-id-light">Light ID</label><input class="control code-control" id="cfg-id-light" maxlength="64" name="idLight" required=""/></div>
+<div class="field"><label for="cfg-id-pressure">Pressure ID</label><input class="control code-control" id="cfg-id-pressure" maxlength="64" name="idPressure" required=""/></div>
+<div class="field"><label for="cfg-id-sound">Sound ID</label><input class="control code-control" id="cfg-id-sound" maxlength="64" name="idSound" required=""/></div>
+<div class="field"><label for="cfg-id-ip">IP message ID</label><input class="control code-control" id="cfg-id-ip" maxlength="64" name="idIp" required=""/></div>
+<div class="field"><label for="cfg-id-mac">MAC message ID</label><input class="control code-control" id="cfg-id-mac" maxlength="64" name="idMac" required=""/></div>
+<div class="field"><label for="cfg-id-alive">Alive message ID</label><input class="control code-control" id="cfg-id-alive" maxlength="64" name="idAlive" required=""/></div>
+<div class="field"><label for="cfg-id-local">Local-address ID</label><input class="control code-control" id="cfg-id-local" maxlength="64" name="idLocalAddress" required=""/></div>
+<div class="field"><label for="cfg-id-ping">Ping ID</label><input class="control code-control" id="cfg-id-ping" maxlength="64" name="idPing" required=""/></div>
+</div>
+</div>
+</details>
+<details class="config-group">
+<summary>Configuration backup &amp; restore</summary>
+<div class="config-group-body">
+<p class="section-help">Export a deployment-safe JSON backup or load one into this form. Wi-Fi passwords, MQTT passwords, administrator credentials and sessions are never exported. Importing only fills the form; nothing is written until you review the values and press Save configuration &amp; restart.</p>
+<div class="config-grid two-column">
+<div class="field">
+<label>Export current configuration</label>
+<a class="button-secondary button-link" href="/api/config/export" id="config-export-link">Download configuration JSON</a>
+<span class="field-help">Includes public CA trust material and non-secret MQTT settings.</span>
+</div>
+<div class="field">
+<label for="config-import-file">Import configuration JSON</label>
+<input class="control" id="config-import-file" accept=".json,application/json" type="file"/>
+<span class="field-help">Review imported values before saving. Existing passwords are preserved unless you explicitly clear or replace them.</span>
+</div>
+</div>
+</div>
+</details>
+<div class="config-links-row">
+<div><strong>Dedicated Wi-Fi manager</strong><span>Wi-Fi network scanning, SSID selection, and Wi-Fi password changes are managed only from the dedicated Wi-Fi page.</span></div>
+<a class="button-secondary button-link" href="/wifi">Open Wi-Fi manager</a>
+</div>
+<div aria-live="polite" class="notice" id="config-notice" role="status"></div>
+<div class="config-save-row">
+<span class="field-help">Saving restarts the Room Monitor after the response is delivered.</span>
+<button class="button-primary" id="save-config-button" type="submit">Save configuration &amp; restart</button>
+</div>
+</form>
+</div>
+</article>
+</section>
+<footer class="page-footer"><span>Evolved.City Room Monitoring</span><span class="footer-separator">•</span><span>Protected device configuration</span></footer>
+</main>
+<script>
+(function(){
+'use strict';
+var configForm=document.getElementById('device-config-form'),configDirty=false,previousNodeId='',mqttCaCertStored=false,mqttCaCertDirty=false;
+function el(id){return document.getElementById(id);}
+function stateHeaders(extra){var h=extra||{};h['X-RoomMonitor-Request']='1';return h;}
+function setNotice(type,message){var n=el('config-notice');if(!n)return;n.className='notice show '+type;n.textContent=message;}
+function clearNotice(){var n=el('config-notice');if(!n)return;n.className='notice';n.textContent='';}
+function setTestNotice(type,message){var n=el('mqtt-test-notice');n.className=message?'notice show '+type:'notice';n.textContent=message||'';}
+function setField(id,value){var f=el(id);if(f)f.value=value==null?'':value;}
+function stepText(value){if(value==='pass')return 'PASS';if(value==='fail')return 'FAIL';if(value==='na')return 'N/A';return 'NOT RUN';}
+function bytesText(n){n=Number(n||0);return n>=1024?(n/1024).toFixed(1)+' KB':n+' B';}
+function looksLikeIpv4(host){return /^\d{1,3}(?:\.\d{1,3}){3}$/.test((host||'').trim());}
+function updateTlsHostHint(){var n=el('cfg-mqtt-host-tls-note'),tls=el('cfg-mqtt-tls').checked,host=el('cfg-mqtt-host').value.trim();if(!n)return;if(tls&&looksLikeIpv4(host)){n.textContent='TLS is enabled and the broker is configured by IP address. The broker server certificate must contain this exact IP address in its Subject Alternative Name (SAN). If the certificate is issued to a DNS name, enter that DNS hostname here instead.';}else if(tls){n.textContent='TLS hostname verification is enabled. This hostname must match the broker server certificate SAN/CN.';}else{n.textContent='For TLS, use the broker DNS hostname that appears in the server certificate whenever possible.';}}
+function populate(cfg){
+ setField('cfg-node-id',cfg.nodeId);previousNodeId=cfg.nodeId||'';setField('cfg-mqtt-host',cfg.mqttHost);setField('cfg-mqtt-port',cfg.mqttPort);el('cfg-mqtt-tls').checked=!!cfg.mqttTlsEnabled;
+ setField('cfg-mqtt-ca','');mqttCaCertStored=!!cfg.mqttCaCertSet;mqttCaCertDirty=false;el('cfg-clear-mqtt-ca').checked=false;el('cfg-mqtt-ca-file').value='';el('cfg-mqtt-ca-state').textContent=mqttCaCertStored?'CA certificate stored in ESP32 NVS ('+(cfg.mqttCaCertLength||0)+' characters). Loading…':'No CA certificate stored. Paste it or browse a PEM certificate file.';
+ setField('cfg-mqtt-publish',cfg.mqttPublishTopic);setField('cfg-mqtt-subscribe',cfg.mqttSubscribeTopic);setField('cfg-mqtt-qos',cfg.mqttQos);setField('cfg-mqtt-user',cfg.mqttUsername);setField('cfg-mqtt-password','');setField('cfg-mqtt-client',cfg.mqttClientId);setField('cfg-mqtt-keepalive',cfg.mqttKeepAliveSec);el('cfg-mqtt-clean').checked=!!cfg.mqttCleanSession;el('cfg-mqtt-retain').checked=!!cfg.mqttPublishRetain;el('cfg-clear-mqtt').checked=false;el('cfg-mqtt-password-state').textContent=cfg.mqttPasswordSet?'A password is stored. Leave this field blank to keep it.':'No MQTT password stored.';
+ updateTlsHostHint();
+ setField('cfg-send-interval',cfg.sendIntervalSec);setField('cfg-alive-interval',cfg.aliveIntervalSec);
+ var o=cfg.offsets||{};setField('cfg-off-temp',o.temperature);setField('cfg-off-hum',o.humidity);setField('cfg-off-iaq',o.iaq);setField('cfg-off-co2',o.co2);setField('cfg-off-voc',o.voc);setField('cfg-off-pressure',o.pressure);setField('cfg-off-light',o.light);setField('cfg-off-sound',o.sound);
+ var d=cfg.deadbands||{};setField('cfg-db-temp',d.temperature);setField('cfg-db-hum',d.humidity);setField('cfg-db-pressure',d.pressure);setField('cfg-db-iaq',d.iaq);setField('cfg-db-co2',d.co2);setField('cfg-db-voc',d.voc);setField('cfg-db-sound',d.sound);setField('cfg-db-light',d.light);
+ var i=cfg.sensorIds||{};setField('cfg-id-temp',i.temperature);setField('cfg-id-hum',i.humidity);setField('cfg-id-co2',i.co2);setField('cfg-id-aq',i.airQuality);setField('cfg-id-light',i.light);setField('cfg-id-gas',i.gas);setField('cfg-id-pressure',i.pressure);setField('cfg-id-sound',i.sound);setField('cfg-id-ip',i.ip);setField('cfg-id-mac',i.mac);setField('cfg-id-alive',i.alive);setField('cfg-id-local',i.localAddress);setField('cfg-id-ping',i.ping);configDirty=false;if(mqttCaCertStored)setTimeout(loadMqttCaCert,0);loadCertificateInfo();
+}
+function loadMqttCaCert(){if(!mqttCaCertStored)return;fetch('/api/config/mqtt-ca?ts='+Date.now(),{cache:'no-store'}).then(function(r){if(r.status===401){window.location.replace('/login?next=/configuration');throw new Error('Administrator session expired.');}if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(text){if(mqttCaCertDirty)return;setField('cfg-mqtt-ca',text);el('cfg-mqtt-ca-state').textContent=text?'CA certificate loaded from ESP32 NVS ('+text.length+' characters).':'No CA certificate stored.';}).catch(function(e){el('cfg-mqtt-ca-state').textContent='CA certificate is stored, but it could not be loaded: '+e.message;});}
+function loadCertificateInfo(){fetch('/api/config/certificate?ts='+Date.now(),{cache:'no-store'}).then(function(r){if(r.status===401){window.location.replace('/login?next=/configuration');throw new Error('Administrator session expired.');}if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(c){var status=!c.present?'No stored CA certificate':(!c.validPem?'Invalid certificate':(c.expired?'Certificate expired':(c.notYetValid?'Certificate not yet valid':'Stored CA certificate valid')));el('certificate-status').textContent=status;el('certificate-subject').textContent=c.subject||c.error||'—';el('certificate-valid-to').textContent=c.validTo||'—';el('certificate-fingerprint').textContent=c.sha256||'—';}).catch(function(e){el('certificate-status').textContent='Certificate details unavailable';el('certificate-subject').textContent=e.message||'—';});}
+function loadConfig(){fetch('/api/config?ts='+Date.now(),{cache:'no-store'}).then(function(r){if(r.status===401){window.location.replace('/login?next=/configuration');throw new Error('Administrator session expired.');}return r.json().then(function(data){return{ok:r.ok,data:data};});}).then(function(result){if(!result.ok)throw new Error(result.data.message||'Could not load device configuration.');populate(result.data);}).catch(function(e){setNotice('error',e.message||'Could not load device configuration.');});}
+function buildFormBody(){var fd=new FormData(configForm),tls=el('cfg-mqtt-tls').checked,clearCa=el('cfg-clear-mqtt-ca').checked;fd.set('clearMqttCredentials',el('cfg-clear-mqtt').checked?'1':'0');fd.set('mqttCleanSession',el('cfg-mqtt-clean').checked?'1':'0');fd.set('mqttPublishRetain',el('cfg-mqtt-retain').checked?'1':'0');fd.set('mqttTlsEnabled',tls?'1':'0');fd.set('clearMqttCaCert',clearCa?'1':'0');if(mqttCaCertStored&&!mqttCaCertDirty&&!clearCa)fd.set('mqttCaCert','');return new URLSearchParams(fd).toString();}
+function applyImportedConfiguration(cfg){if(!cfg||typeof cfg!=='object')throw new Error('The selected file does not contain a configuration object.');if(cfg.schema!==undefined&&Number(cfg.schema)>4)throw new Error('This backup uses a newer configuration schema and cannot be safely imported by v7.3.');
+ var map=[['cfg-node-id','nodeId'],['cfg-mqtt-host','mqttHost'],['cfg-mqtt-port','mqttPort'],['cfg-mqtt-publish','mqttPublishTopic'],['cfg-mqtt-subscribe','mqttSubscribeTopic'],['cfg-mqtt-qos','mqttQos'],['cfg-mqtt-user','mqttUsername'],['cfg-mqtt-client','mqttClientId'],['cfg-mqtt-keepalive','mqttKeepAliveSec'],['cfg-send-interval','sendIntervalSec'],['cfg-alive-interval','aliveIntervalSec']];map.forEach(function(x){if(cfg[x[1]]!==undefined)setField(x[0],cfg[x[1]]);});
+ if(cfg.mqttTlsEnabled!==undefined)el('cfg-mqtt-tls').checked=!!cfg.mqttTlsEnabled;if(cfg.mqttCleanSession!==undefined)el('cfg-mqtt-clean').checked=!!cfg.mqttCleanSession;if(cfg.mqttPublishRetain!==undefined)el('cfg-mqtt-retain').checked=!!cfg.mqttPublishRetain;
+ if(typeof cfg.mqttCaCert==='string'&&cfg.mqttCaCert.trim()){setField('cfg-mqtt-ca',cfg.mqttCaCert);mqttCaCertDirty=true;el('cfg-clear-mqtt-ca').checked=false;el('cfg-mqtt-ca-state').textContent='CA certificate loaded from configuration backup ('+cfg.mqttCaCert.length+' characters).';}
+ var o=cfg.offsets||{},d=cfg.deadbands||{},i=cfg.sensorIds||{};[['cfg-off-temp','temperature'],['cfg-off-hum','humidity'],['cfg-off-iaq','iaq'],['cfg-off-co2','co2'],['cfg-off-voc','voc'],['cfg-off-pressure','pressure'],['cfg-off-light','light'],['cfg-off-sound','sound']].forEach(function(x){if(o[x[1]]!==undefined)setField(x[0],o[x[1]]);});[['cfg-db-temp','temperature'],['cfg-db-hum','humidity'],['cfg-db-pressure','pressure'],['cfg-db-iaq','iaq'],['cfg-db-co2','co2'],['cfg-db-voc','voc'],['cfg-db-sound','sound'],['cfg-db-light','light']].forEach(function(x){if(d[x[1]]!==undefined)setField(x[0],d[x[1]]);});[['cfg-id-temp','temperature'],['cfg-id-hum','humidity'],['cfg-id-co2','co2'],['cfg-id-aq','airQuality'],['cfg-id-light','light'],['cfg-id-gas','gas'],['cfg-id-pressure','pressure'],['cfg-id-sound','sound'],['cfg-id-ip','ip'],['cfg-id-mac','mac'],['cfg-id-alive','alive'],['cfg-id-local','localAddress'],['cfg-id-ping','ping']].forEach(function(x){if(i[x[1]]!==undefined)setField(x[0],i[x[1]]);});
+ setField('cfg-mqtt-password','');el('cfg-clear-mqtt').checked=false;previousNodeId=el('cfg-node-id').value.trim();configDirty=true;updateTlsHostHint();setNotice('success','Configuration backup loaded into the form. Passwords were not imported. Review the values and save when ready.');}
+el('logout-button').addEventListener('click',function(){var b=this;b.disabled=true;fetch('/api/admin/logout',{method:'POST',headers:stateHeaders(),cache:'no-store'}).finally(function(){window.location.replace('/login?next=/configuration');});});
+configForm.addEventListener('input',function(){configDirty=true;});configForm.addEventListener('change',function(){configDirty=true;});el('cfg-mqtt-ca').addEventListener('input',function(){mqttCaCertDirty=true;});
+el('cfg-mqtt-host').addEventListener('input',updateTlsHostHint);el('cfg-mqtt-tls').addEventListener('change',updateTlsHostHint);
+el('cfg-mqtt-ca-file').addEventListener('change',function(){var input=this,file=input.files&&input.files[0];if(!file)return;clearNotice();if(file.size>12000){setNotice('error','Certificate file is unexpectedly large. Select a PEM CA certificate smaller than 3,500 characters.');input.value='';return;}var reader=new FileReader();reader.onload=function(){var text=String(reader.result||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();if(text&&text.charAt(text.length-1)!=='\n')text+='\n';if(text.length>3500){setNotice('error','The selected PEM certificate is too large ('+text.length+' characters; maximum 3,500).');input.value='';return;}if(text.indexOf('-----BEGIN CERTIFICATE-----')!==0||text.indexOf('-----END CERTIFICATE-----')<0){setNotice('error','The selected file is not a PEM certificate. Use a text .pem/.crt/.cer file containing BEGIN CERTIFICATE and END CERTIFICATE markers.');input.value='';return;}setField('cfg-mqtt-ca',text);el('cfg-clear-mqtt-ca').checked=false;mqttCaCertDirty=true;configDirty=true;el('cfg-mqtt-ca-state').textContent='Certificate loaded from '+file.name+' ('+text.length+' characters). Save configuration to store it in ESP32 NVS.';setNotice('success','CA certificate loaded from file. You can run Test MQTT / TLS connection before saving.');};reader.onerror=function(){setNotice('error','The selected certificate file could not be read.');};reader.readAsText(file);});
+el('cfg-clear-mqtt-ca').addEventListener('change',function(){if(this.checked){el('cfg-mqtt-ca-state').textContent='The stored CA certificate will be removed when you save.';}else{var text=el('cfg-mqtt-ca').value.trim();el('cfg-mqtt-ca-state').textContent=text?'CA certificate is present in the form ('+text.length+' characters).':'No CA certificate selected.';}});
+el('cfg-node-id').addEventListener('input',function(){var sub=el('cfg-mqtt-subscribe');if(sub&&sub.value===previousNodeId+'/Command')sub.value=this.value.trim()+'/Command';previousNodeId=this.value.trim();});
+el('mqtt-test-button').addEventListener('click',function(){clearNotice();setTestNotice('info','Testing MQTT connection…');if(!configForm.reportValidity()){setTestNotice('error','Correct the highlighted configuration fields first.');return;}var b=this;b.disabled=true;fetch('/api/config/test-mqtt',{method:'POST',headers:stateHeaders({'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}),body:buildFormBody(),cache:'no-store'}).then(function(r){return r.json().then(function(data){return{ok:r.ok,status:r.status,data:data};});}).then(function(x){var d=x.data||{},st=d.steps||{},dt=d.details||{},out=d.outcome||'fail',mode=d.mode||'independent',parts=[];el('mqtt-test-steps').hidden=false;el('test-mode').textContent=mode==='live'?'Existing live connection':'Unsaved / independent';el('test-live').textContent=d.liveConnected?'CONNECTED':'DISCONNECTED';el('test-dns').textContent=stepText(st.dns);el('test-tcp').textContent=stepText(st.tcp);el('test-time').textContent=stepText(st.time);el('test-ca').textContent=stepText(st.ca);el('test-tls').textContent=stepText(st.tls);el('test-login').textContent=stepText(st.mqttLogin);el('test-subscribe').textContent=stepText(st.subscribe);el('test-ip').textContent=d.resolvedIp||'—';if(mode==='live')parts.push('No second MQTT/TLS client was created.');else parts.push('Heap before: '+bytesText(dt.freeHeapBeforeBytes)+', largest block: '+bytesText(dt.largestBlockBeforeBytes)+'.');if(dt.errorType)parts.push('MQTT error type '+dt.errorType+'.');if(dt.espTlsError)parts.push('ESP-TLS error '+dt.espTlsError+'.');if(dt.tlsStackError)parts.push('TLS stack error '+dt.tlsStackError+'.');if(dt.certVerifyFlags)parts.push('Certificate verify flags '+dt.certVerifyFlags+'.');if(dt.socketErrno)parts.push('Socket errno '+dt.socketErrno+'.');if(dt.connackCode>=0)parts.push('CONNACK '+dt.connackCode+'.');el('test-details').textContent=parts.join(' ');setTestNotice(out==='pass'?'success':(out==='partial'?'info':'error'),d.message||(out==='partial'?'MQTT test partially completed.':'MQTT connection test failed.'));}).catch(function(e){setTestNotice('error',e.message||'MQTT connection test failed.');}).finally(function(){b.disabled=false;});});
+el('config-import-file').addEventListener('change',function(){var input=this,file=input.files&&input.files[0];if(!file)return;if(file.size>30000){setNotice('error','Configuration backup is unexpectedly large.');input.value='';return;}var reader=new FileReader();reader.onload=function(){try{applyImportedConfiguration(JSON.parse(String(reader.result||'')));}catch(e){setNotice('error','Could not import configuration: '+e.message);}input.value='';};reader.onerror=function(){setNotice('error','The selected configuration file could not be read.');};reader.readAsText(file);});
+configForm.addEventListener('submit',function(event){event.preventDefault();clearNotice();if(!configForm.reportValidity())return;var tls=el('cfg-mqtt-tls').checked,clearCa=el('cfg-clear-mqtt-ca').checked,newCa=el('cfg-mqtt-ca').value.trim();if(tls&&((!mqttCaCertStored&&newCa==='')||clearCa)){setNotice('error','Secure MQTT requires a broker CA certificate. Paste it or load a PEM file before saving.');return;}if(tls&&looksLikeIpv4(el('cfg-mqtt-host').value)){setNotice('info','TLS is using an IP broker address. Connection will succeed only if the broker server certificate contains that IP in its SAN. A DNS hostname matching the certificate is normally preferred.');}var button=el('save-config-button');button.disabled=true;button.textContent='Saving…';fetch('/api/config/save',{method:'POST',headers:stateHeaders({'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}),body:buildFormBody(),cache:'no-store'}).then(function(r){return r.json().then(function(data){return{ok:r.ok,status:r.status,data:data};});}).then(function(result){if(!result.ok||!result.data.ok){if(result.status===401)throw new Error('Your administrator session has expired. Sign in again.');throw new Error(result.data.message||'Could not save configuration.');}configDirty=false;setNotice('success',result.data.message||'Configuration saved. Device is restarting…');button.textContent='Saved — restarting';setTimeout(function(){window.location.href='/login?next=/configuration';},4500);}).catch(function(e){setNotice('error',e.message||'Could not save configuration.');button.disabled=false;button.textContent='Save configuration & restart';});});
+window.addEventListener('beforeunload',function(event){if(!configDirty)return;event.preventDefault();event.returnValue='';});
+loadConfig();
+})();
+</script>
+</body>
+</html>

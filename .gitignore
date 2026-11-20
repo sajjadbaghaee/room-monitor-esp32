@@ -1,0 +1,41 @@
+# Compiler / editor output
+.pio/
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+*.bin
+*.elf
+*.map
+
+# Private build credentials, broker secrets and identity material
+include/Secrets.h
+.env
+.env.*
+!.env.example
+secrets/
+private/
+*.key
+*.p12
+*.pfx
+*.pem
+*.crt
+*.cer
+*.keystore
+*credentials*.json
+*config-export*.json
+*config_export*.json
+
+# Device dumps, local runtime logs and backups
+*.log
+*.dump
+*.core
+*.bak
+*.backup
+*.old
+*.sqlite
+*.sqlite3
+*.db
+*.zip
